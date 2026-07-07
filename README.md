@@ -14,16 +14,6 @@ Important Notice
 
 This project contains upstream-derived code and model integration patterns. Keep the included license/notice files and follow the applicable source and model licenses when redistributing or commercializing it.
 
-Clean Project Shape
--------------------
-
-The project does not include `input/` or `output/` folders by default.
-
-Users provide paths themselves:
-
-- CLI: pass source, target, and output paths with flags.
-- UI: drag/drop files or choose files from the browser interface.
-
 
 Installation Guide
 ------------------
