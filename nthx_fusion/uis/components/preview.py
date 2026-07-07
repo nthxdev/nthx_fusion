@@ -142,7 +142,10 @@ def listen() -> None:
 		'face_mask_padding_right_slider',
 		'output_video_fps_slider'
 	]):
+		# Fire on release (full quality update)
 		ui_component.release(update_preview_image, inputs = [ preview_mode_dropdown, preview_resolution_dropdown, preview_frame_slider ], outputs = PREVIEW_IMAGE)
+		# Also fire on change while dragging (trigger_mode='once' avoids queuing multiple requests)
+		ui_component.change(update_preview_image, inputs = [ preview_mode_dropdown, preview_resolution_dropdown, preview_frame_slider ], outputs = PREVIEW_IMAGE, show_progress = 'hidden', trigger_mode = 'once')
 
 	for ui_component in get_ui_components(
 	[
@@ -179,6 +182,7 @@ def listen() -> None:
 		'face_landmarker_score_slider'
 	]):
 		ui_component.release(clear_and_update_preview_image, inputs = [ preview_mode_dropdown, preview_resolution_dropdown, preview_frame_slider ], outputs = PREVIEW_IMAGE)
+		ui_component.change(clear_and_update_preview_image, inputs = [ preview_mode_dropdown, preview_resolution_dropdown, preview_frame_slider ], outputs = PREVIEW_IMAGE, show_progress = 'hidden', trigger_mode = 'once')
 
 
 def update_preview_image(preview_mode : PreviewMode, preview_resolution : str, frame_number : int = 0) -> gradio.Image:

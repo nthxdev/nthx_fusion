@@ -35,10 +35,11 @@ def render() -> None:
 				size = 'sm'
 			)
 			INSTANT_RUNNER_STOP_BUTTON = gradio.Button(
-				value = translator.get('uis.stop_button'),
-				variant = 'primary',
+				value = 'Cancel',
+				variant = 'stop',
 				size = 'sm',
-				visible = False
+				visible = True,
+				interactive = False
 			)
 			INSTANT_RUNNER_CLEAR_BUTTON = gradio.Button(
 				value = translator.get('uis.clear_button'),
@@ -55,7 +56,7 @@ def listen() -> None:
 		INSTANT_RUNNER_START_BUTTON.click(start, outputs = [ INSTANT_RUNNER_START_BUTTON, INSTANT_RUNNER_STOP_BUTTON ])
 		INSTANT_RUNNER_START_BUTTON.click(run, outputs = [ INSTANT_RUNNER_START_BUTTON, INSTANT_RUNNER_STOP_BUTTON, output_image, output_video ])
 		INSTANT_RUNNER_STOP_BUTTON.click(stop, outputs = [ INSTANT_RUNNER_START_BUTTON, INSTANT_RUNNER_STOP_BUTTON, output_image, output_video ])
-		INSTANT_RUNNER_CLEAR_BUTTON.click(clear, outputs = [ output_image, output_video ])
+		INSTANT_RUNNER_CLEAR_BUTTON.click(clear, outputs = [ output_image, output_video, INSTANT_RUNNER_STOP_BUTTON ])
 	if ui_workflow_dropdown:
 		ui_workflow_dropdown.change(remote_update, inputs = ui_workflow_dropdown, outputs = INSTANT_RUNNER_WRAPPER)
 
@@ -69,7 +70,8 @@ def remote_update(ui_workflow : UiWorkflow) -> gradio.Row:
 def start() -> Tuple[gradio.Button, gradio.Button]:
 	while not process_manager.is_processing():
 		sleep(0.5)
-	return gradio.Button(visible = False), gradio.Button(visible = True)
+	# Disable Start, enable Cancel while processing
+	return gradio.Button(interactive = False), gradio.Button(interactive = True)
 
 
 def run() -> Tuple[gradio.Button, gradio.Button, gradio.Image, gradio.Video]:
@@ -82,10 +84,10 @@ def run() -> Tuple[gradio.Button, gradio.Button, gradio.Image, gradio.Video]:
 		create_and_run_job(step_args)
 		state_manager.set_item('output_path', output_path)
 	if is_image(step_args.get('output_path')):
-		return gradio.Button(visible = True), gradio.Button(visible = False), gradio.Image(value = step_args.get('output_path'), visible = True), gradio.Video(value = None, visible = False)
+		return gradio.Button(interactive = True), gradio.Button(interactive = False), gradio.Image(value = step_args.get('output_path'), visible = True), gradio.Video(value = None, visible = False)
 	if is_video(step_args.get('output_path')):
-		return gradio.Button(visible = True), gradio.Button(visible = False), gradio.Image(value = None, visible = False), gradio.Video(value = step_args.get('output_path'), visible = True)
-	return gradio.Button(visible = True), gradio.Button(visible = False), gradio.Image(value = None), gradio.Video(value = None)
+		return gradio.Button(interactive = True), gradio.Button(interactive = False), gradio.Image(value = None, visible = False), gradio.Video(value = step_args.get('output_path'), visible = True)
+	return gradio.Button(interactive = True), gradio.Button(interactive = False), gradio.Image(value = None), gradio.Video(value = None)
 
 
 def create_and_run_job(step_args : Args) -> bool:
@@ -99,12 +101,14 @@ def create_and_run_job(step_args : Args) -> bool:
 
 def stop() -> Tuple[gradio.Button, gradio.Button, gradio.Image, gradio.Video]:
 	process_manager.stop()
-	return gradio.Button(visible = True), gradio.Button(visible = False), gradio.Image(value = None), gradio.Video(value = None)
+	# Re-enable Start, disable Cancel after cancellation
+	return gradio.Button(interactive = True), gradio.Button(interactive = False), gradio.Image(value = None), gradio.Video(value = None)
 
 
-def clear() -> Tuple[gradio.Image, gradio.Video]:
+def clear() -> Tuple[gradio.Image, gradio.Video, gradio.Button]:
 	while process_manager.is_processing():
 		sleep(0.5)
 	if state_manager.get_item('target_path'):
 		clear_temp_directory(state_manager.get_item('target_path'))
-	return gradio.Image(value = None), gradio.Video(value = None)
+	# Also ensure Cancel is disabled after clear
+	return gradio.Image(value = None), gradio.Video(value = None), gradio.Button(interactive = False)
