@@ -201,7 +201,4 @@ LICENSE.md              license notice
 tests/                  test suite
 ```
 
-Maintainer
-----------
-
-NTHX Lab
+Maintainer -> nthxlabs
