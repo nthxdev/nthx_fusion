@@ -24,6 +24,80 @@ Users provide paths themselves:
 - CLI: pass source, target, and output paths with flags.
 - UI: drag/drop files or choose files from the browser interface.
 
+
+Installation Guide
+------------------
+
+To run NTHX Fusion, your system needs native command-line dependencies (like **FFmpeg**) and execution runtimes (like **CUDA** for GPU acceleration).
+
+### 1. Prerequisites (Platform-Specific)
+
+#### Ubuntu / WSL2 / Debian
+Install the required system utilities using your package manager:
+```bash
+sudo apt update && sudo apt install -y git curl ffmpeg
+```
+
+#### macOS
+Install using **Homebrew**:
+```bash
+brew install git curl ffmpeg
+```
+
+#### Windows
+1. Install **Git** from [git-scm.com](https://git-scm.com/).
+2. Install **FFmpeg** from [ffmpeg.org](https://ffmpeg.org/) (ensure `ffmpeg` is added to your system's Environment Variables `PATH`).
+
+---
+
+### 2. Environment Setup (Cross-Platform)
+
+We recommend using **Miniconda** to manage isolated environments and CUDA runtimes.
+
+1. **Install Miniconda:**
+   Follow instructions for your OS on [docs.anaconda.com/miniconda](https://docs.anaconda.com/miniconda/).
+2. **Create and Activate Python 3.12 Environment:**
+   ```bash
+   conda create --name nthx_fusion python=3.12 pip=25.0 -y
+   conda activate nthx_fusion
+   ```
+
+---
+
+### 3. GPU Acceleration Setup (Optional)
+
+If you have an NVIDIA GPU and want fast processing, install the version-locked CUDA and cuDNN runtimes inside your Conda environment:
+
+#### Windows / Linux / WSL2 (NVIDIA GPU)
+```bash
+conda install nvidia/label/cuda-12.9.1::cuda-runtime nvidia/label/cudnn-9.10.0::cudnn -y
+```
+
+---
+
+### 4. Clone and Install Dependencies
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/nthxdev/nthx_fusion.git
+   cd nthx_fusion
+   ```
+2. **Run Installer:**
+   Choose the appropriate installer command depending on your hardware:
+   * **For NVIDIA GPU:**
+     ```bash
+     python install.py --onnxruntime cuda
+     ```
+   * **For Apple Silicon (macOS):**
+     ```bash
+     python install.py --onnxruntime coreml
+     ```
+   * **For CPU Only:**
+     ```bash
+     python install.py --onnxruntime default
+     ```
+
+
 Quick Test
 ----------
 
